@@ -11,8 +11,8 @@ Bugbop is a bug bounty platform. Its REST API lets you do what the user can do i
 
 Everything goes through `scripts/bugbop.py` (Python 3, no dependencies). It needs a token:
 
-1. The user creates one on the **API Tokens** tab of their Bugbop profile. It starts with `bb_` and is shown once.
-2. `export BUGBOP_TOKEN=bb_...`
+1. The user creates one on the **API Tokens** tab of their Bugbop profile. It starts with `bugbop_pat_` and is shown once.
+2. `export BUGBOP_TOKEN=bugbop_pat_...`
 
 Never ask the user to paste the token into the chat, and never echo it. If `BUGBOP_TOKEN` isn't set, tell them how to create one and stop.
 

@@ -75,7 +75,7 @@ def main():
 
     token = os.environ.get("BUGBOP_TOKEN")
     if not token:
-        sys.exit("Set BUGBOP_TOKEN to a token from the API Tokens tab of your Bugbop profile.")
+        sys.exit("Set BUGBOP_TOKEN to a bugbop_pat_ token from the API Tokens tab of your Bugbop profile.")
 
     body = None
     if args.data:

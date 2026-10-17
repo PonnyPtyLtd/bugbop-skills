@@ -16,7 +16,7 @@ Or copy `skills/bugbop` into `~/.claude/skills/`.
 Then create a token on the **API Tokens** tab of your Bugbop profile and export it:
 
 ```bash
-export BUGBOP_TOKEN=bb_...
+export BUGBOP_TOKEN=bugbop_pat_...
 ```
 
 ## Try it
