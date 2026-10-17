@@ -1,0 +1,21 @@
+{
+  "name": "bugbop-skills",
+  "owner": {
+    "name": "Ponny Pty Ltd"
+  },
+  "metadata": {
+    "description": "Skills for working with Bugbop, the bug bounty platform",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "bugbop",
+      "description": "Triage, comment on and sync Bugbop bug reports through the Bugbop REST API",
+      "source": "./",
+      "strict": false,
+      "skills": [
+        "./skills/bugbop"
+      ]
+    }
+  ]
+}
