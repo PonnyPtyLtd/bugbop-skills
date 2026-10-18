@@ -27,7 +27,15 @@ export BUGBOP_TOKEN=bugbop_pat_...
 - "Triage the open criticals and draft replies to the hunters."
 - "Create Jira tickets for every high or critical report that's open."
 
-Anything that notifies people (comments, status changes, new reports) gets shown to you before it's sent.
+## A word of caution
+
+An LLM agent isn't deterministic. It can misread a report, get a severity wrong, or be steered by text a hunter wrote. That's acceptable for summaries and drafts, and not acceptable for closing reports or telling a hunter their bug is invalid, so the skill is built to keep you in the loop:
+
+- Anything that notifies people (comments, status changes, new reports) is shown to you before it's sent.
+- Everything it reads from Bugbop, including internal notes, is treated as data, never as instructions.
+- It won't call a bug valid, or recommend a bounty, because the report says so.
+
+Start with a `read`-only token and see how it behaves on your reports before you give it `write`. Treat what it says about a bug the way you'd treat a new triager's opinion: useful, and worth checking.
 
 ## The script
 
