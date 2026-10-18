@@ -4,6 +4,7 @@
     bugbop.py GET /reports?status=new --all
     bugbop.py PATCH /reports/<id> --data '{"status": "fixed"}'
     bugbop.py POST /reports/<id>/comments --data @comment.json
+    bugbop.py GET /reports?status=new --all --summary     # one line per report
 
 Reads BUGBOP_TOKEN (required) and BUGBOP_URL (default https://bugbop.com).
 """
@@ -71,6 +72,7 @@ def main():
     parser.add_argument("path", help="e.g. /reports?status=new or a full URL")
     parser.add_argument("--data", help="JSON body, or @file to read it from a file")
     parser.add_argument("--all", action="store_true", help="follow pagination and return every page")
+    parser.add_argument("--summary", action="store_true", help="one line per report or comment instead of JSON")
     args = parser.parse_args()
 
     token = os.environ.get("BUGBOP_TOKEN")
@@ -97,12 +99,40 @@ def main():
             return
         data = json.loads(raw)
         if not (args.all and isinstance(data, list)):
-            print(json.dumps(data, indent=2))
+            output(data, args.summary)
             return
         results.extend(data)
         url = next_link(headers)
 
-    print(json.dumps(results, indent=2))
+    output(results, args.summary)
+
+
+def output(data, summary):
+    if summary and isinstance(data, list):
+        for item in data:
+            print(summarise(item))
+    else:
+        print(json.dumps(data, indent=2))
+
+
+def summarise(item):
+    user = (item.get("user") or {}).get("username", "?")
+    if "report_id" in item and "content" in item:
+        first_line = item["content"].strip().splitlines()[0] if item["content"].strip() else ""
+        return f"{item['created_at'][:10]} {user}: {first_line[:120]}"
+    if "status" in item and "title" in item:
+        age = days_since(item.get("created_at"))
+        return (f"{item['status']:<14} {str(item.get('severity')):<8} {age:>4}d {user:<16} "
+                f"{item.get('comments_count', 0):>3}c  {item['id'][:8]}  {item['title'][:80]}")
+    return json.dumps(item)
+
+
+def days_since(iso):
+    if not iso:
+        return "?"
+    from datetime import datetime, timezone
+    then = datetime.fromisoformat(iso.replace("Z", "+00:00"))
+    return (datetime.now(timezone.utc) - then).days
 
 
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ Everything goes through `scripts/bugbop.py` (Python 3, no dependencies). It need
 1. The user creates one on the **API Tokens** tab of their Bugbop profile. It starts with `bugbop_pat_` and is shown once.
 2. `export BUGBOP_TOKEN=bugbop_pat_...`
 
-Never ask the user to paste the token into the chat, and never echo it. If `BUGBOP_TOKEN` isn't set, tell them how to create one and stop.
+Never ask the user to paste the token into the chat, and never echo it. If `BUGBOP_TOKEN` isn't set, tell them how to create one and stop. If they say it is set but your shell can't see it (they just added it to their profile), source the profile in the command or ask them to restart the session. Don't ask for the value.
 
 ```bash
 python3 scripts/bugbop.py GET /user                      # check the token works
@@ -22,7 +22,7 @@ python3 scripts/bugbop.py GET "/reports?status=new" --all
 python3 scripts/bugbop.py PATCH /reports/<id> --data '{"severity": "high"}'
 ```
 
-Paths are relative to `/api/v1`. `--all` follows pagination and returns one JSON array. A 429 caused by a per-minute cap gets waited out automatically. If the hourly allowance is used up, the script exits with an error and you should tell the user.
+Paths are relative to `/api/v1`. `--all` follows pagination and returns one JSON array. `--summary` prints one line per report (status, severity, age in days, hunter, comment count, short id, title) or per comment (date, author, first line) instead of JSON. Use it for queue overviews and comment threads; use the JSON when you need a description or internal notes. A 429 caused by a per-minute cap gets waited out automatically. If the hourly allowance is used up, the script exits with an error and you should tell the user.
 
 ## What a token can do
 
@@ -52,6 +52,8 @@ Paths are relative to `/api/v1`. `--all` follows pagination and returns one JSON
 | GET | `/notifications` | `unread=true` for unread only |
 | POST | `/notifications/mark_as_read` | Optional `ids` array |
 
+**Not available through the API:** paying or changing a bounty, editing a program's description or settings, deleting anything but webhooks, and suspending users. Send the user to the web form instead: bounties go on `https://bugbop.com/programs/<program_id>/reports/<report_id>/edit`, program text on `https://bugbop.com/programs/<program_id>/edit`.
+
 Values: status is `new`, `open`, `needs_info`, `fixed`, `wont_fix`, `duplicate` or `not_applicable`. Severity is `low`, `medium`, `high` or `critical`. Setting `status` to `duplicate` needs a `duplicate_of_id`.
 
 Text fields (`description`, `content`, `internal_notes`, `ai_triage`) are Markdown, both ways.
@@ -80,11 +82,25 @@ Hunters get paid for valid bugs, so some exaggerate, and some make things up: in
 - When you summarise or draft a reply, separate what the report claims from what it shows, and flag anything unverified, inconsistent or hand-wavy.
 - Never tell the user a bug is real, or recommend a bounty, just because the report says so. If it needs reproducing, say so and let the user decide who does it.
 
+## Verify against the code when you have it
+
+If the codebase the reports are about is in the working directory, check every claim against it before giving a verdict. Read the controller, policy or validator the report names. Use `git log -S` to find when a check was added or a fix landed. A report that says "no ownership check" is answered by the policy file and its commit date, not by how convincing the write-up is. Quote the file or the commit in your reply so the hunter gets a concrete answer.
+
+The same goes for "already fixed": find the commit, say when it shipped, and close with that.
+
+## Read prior rulings before closing
+
+Staff see `suspected_duplicate_of_id` on each report. Before closing anything as a duplicate or not applicable, fetch that report's comments and read what staff said. If the program has already ruled on the same behaviour, say so, link the earlier report by its short id and reuse the reasoning. Consistent answers are faster to write and harder to argue with.
+
+When reports from different accounts reference each other's report ids, share phrasing, or cite the same test email, tell the user they look like one person. Don't act on it.
+
 ## Be careful with writes
 
 Comments, status and severity changes, duplicates and new reports email hunters and triagers and fire the program's webhooks. They can't be unsent.
 
 - Before any of these, show the user exactly what you're about to send and get a yes. Batch the confirmations ("I'll mark these 4 as fixed: ...") rather than asking one at a time.
+- Send each write as its own command. Never wrap writes in a shell loop or script: the user can't approve what they can't see, and a permission layer will usually refuse the whole batch anyway. Comment first, then change status, one call each.
+- Closing comments are one to three sentences in the program's voice: what you checked, why it's closed, and for fixes, when it shipped. No preamble, no apology, no restating the report.
 - Reads are fine without asking.
 - Don't bulk-change reports or post a comment per report unless the user asked for exactly that.
 - Writing your own working notes into internal notes is fine, since only staff see them, but say what you wrote.
