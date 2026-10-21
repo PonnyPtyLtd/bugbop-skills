@@ -122,4 +122,4 @@ Work serially, never in parallel. Use `--all` (it asks for 100 per page) rather 
 
 ## Errors
 
-Errors are JSON with a `message`, and validation errors add an `errors` array. `401` means a bad or expired token. `403` means a missing scope, a role that doesn't allow the action, or a suspended account. `404` means it doesn't exist or the user can't see it. `409` means the action doesn't apply in the current state. `422` means validation failed. Report the `message` to the user rather than retrying.
+Errors are JSON with a `message`, and validation errors add an `errors` array. `401` means a bad or expired token. `403` means a missing scope, a role that doesn't allow the action, or a suspended account. `404` means it doesn't exist or the user can't see it. `409` means the action doesn't apply in the current state. `422` means validation failed. Report the `message` to the user rather than retrying. A `403` saying the user is blocked from submitting reports to a program means program staff blocked their account there. Tell the user, don't retry, and don't try other routes into the same program. Only staff on that program can lift it.
