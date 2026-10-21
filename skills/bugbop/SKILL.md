@@ -46,7 +46,7 @@ Paths are relative to `/api/v1`. `--all` follows pagination and returns one JSON
 | POST | `/report_submissions/:id/proceed_anyway` | Submit despite a scope warning |
 | GET, POST | `/reports/:id/comments` | Body `{"content": "..."}` (Markdown) |
 | GET, PATCH | `/comments/:id` | Only the author can edit |
-| GET, POST | `/programs/:id/blocked_reporters` | Owner/admin/triager. POST takes `username` or `report_id` (that report's reporter). Blocks them from submitting to this program only |
+| GET, POST | `/programs/:id/blocked_reporters` | Owner/admin/triager. POST takes `username` or `report_id` (that report's reporter), not both. Blocks them from submitting to this program only |
 | GET, DELETE | `/blocked_reporters/:id` | DELETE unblocks. There is no PATCH |
 | GET, POST | `/programs/:id/webhooks` | Owner/admin, `webhooks` scope |
 | GET, PATCH, DELETE | `/webhooks/:id` | |
@@ -115,8 +115,8 @@ Limits are per user, shared across all their tokens:
 | Bucket | Covers | Limit |
 |---|---|---|
 | read | GETs | 1,000/hour, 60/minute |
-| quiet | blocking reporters, webhook changes, marking notifications read | 60/hour, 10/minute |
-| noisy | anything that notifies people | 20/hour, 3/minute |
+| quiet | unblocking reporters, webhook changes, marking notifications read | 60/hour, 10/minute |
+| noisy | anything that notifies people, including blocking a reporter (it alerts Bugbop staff) | 20/hour, 3/minute |
 
 Work serially, never in parallel. Use `--all` (it asks for 100 per page) rather than fetching reports one at a time, and use `since` for incremental syncs. Noisy writes are slow on purpose: 3 a minute is the cap, so tell the user if a batch will take a while.
 
