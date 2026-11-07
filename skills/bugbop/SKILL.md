@@ -98,6 +98,18 @@ Staff see `suspected_duplicate_of_id` on each report. Before closing anything as
 
 When reports from different accounts reference each other's report ids, share phrasing, or cite the same test email, tell the user they look like one person. Don't act on it.
 
+## Scope warnings and strikes
+
+Every report has `scope_warning`. When it's `true`, the AI warned the hunter the report looked out of scope and they pressed Submit Anyway. Say so whenever you summarise the report or recommend a status, and when it's part of why the report is closed, mention it in the closing comment ("Our AI flagged this as out of scope before you submitted it").
+
+Closing a scope-warned report as `not_applicable` gives the hunter a strike, unless they're on the program's team or it's a test program. 3 strikes stop them submitting to any program for a month. `wont_fix` never gives a strike. When you recommend closing one, tell the user which status costs a strike and choose on the merits: `not_applicable` for something that should not have been sent, `wont_fix` for a real issue the program accepts.
+
+## Tighten the scope when the AI let something through
+
+On a program with `ai_triage` on, `scope_warning: false` means the AI checked the report against the program's description and judged it in scope. If the user closes one of these as `wont_fix` or `not_applicable` because of scope (an asset, bug class or impact they don't want reports about), the description didn't say so clearly enough, and the next hunter will send the same thing.
+
+After the close, fetch the program (`GET /programs/:id`), find the gap in its `description`, and suggest the exact wording to add or change, for example "Out of scope: missing rate limiting on login, signup and password reset." Clearer scope lets the AI turn these away at submission, which saves the program a triage and the hunter a wasted report. The API can't edit programs, so the user pastes the change into the program's edit page in Bugbop. Skip it when the close was about validity (couldn't reproduce, not actually a bug) rather than scope, and group suggestions when several closes point at the same gap.
+
 ## Be careful with writes
 
 Comments, status and severity changes, duplicates and new reports email hunters and triagers and fire the program's webhooks. They can't be unsent.
