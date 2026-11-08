@@ -120,6 +120,11 @@ def summarise(item):
     if "report_id" in item and "content" in item:
         first_line = item["content"].strip().splitlines()[0] if item["content"].strip() else ""
         return f"{item['created_at'][:10]} {user}: {first_line[:120]}"
+    if "status" in item and "message" in item and "program" in item:
+        message = item["message"].strip()
+        first_line = message.splitlines()[0] if message else ""
+        age = days_since(item.get("created_at"))
+        return f"{item['status']:<9} {age:>4}d {user:<16} {item['id'][:8]}  {first_line[:100]}"
     if "status" in item and "title" in item:
         age = days_since(item.get("created_at"))
         return (f"{item['status']:<14} {str(item.get('severity')):<8} {age:>4}d {user:<16} "
