@@ -72,7 +72,7 @@ def main():
     parser.add_argument("path", help="e.g. /reports?status=new or a full URL")
     parser.add_argument("--data", help="JSON body, or @file to read it from a file")
     parser.add_argument("--all", action="store_true", help="follow pagination and return every page")
-    parser.add_argument("--summary", action="store_true", help="one line per report or comment instead of JSON")
+    parser.add_argument("--summary", action="store_true", help="one line per report, comment or access request instead of JSON")
     args = parser.parse_args()
 
     token = os.environ.get("BUGBOP_TOKEN")
